@@ -22,6 +22,11 @@ StaticPopupDialogs["POPUP_EXTENSIONS"] = {
     hideOnEscape = true,
 }
 
+function CloseMenus()
+    CloseGossip();
+    CloseQuest();
+end
+
 -- @robinsch: button helpers
 function ClickButton()
     if S_BUTTON == nil then
@@ -37,6 +42,7 @@ end
 
 function ClearButton()
     S_BUTTON = nil;
+    SetCursorPosition(0.5, 0.25);
 end
 
 function SetButton(button)
@@ -48,12 +54,16 @@ end
 function SetButtonIndex(index)
     if S_BUTTON == nil then return end
     local buttonName = S_BUTTON:GetName();
-    local buttonIndex = string.match(buttonName,"%d+")
+    local buttonIndex
+    for idx in string.gmatch (buttonName, "%d+") do
+        buttonIndex = idx
+    end
+
     if buttonIndex == nil then
         return
     end
 
-    local newButtonName = string.gsub(buttonName, buttonIndex, buttonIndex + index);
+    local newButtonName = string.gsub(buttonName, buttonIndex .. "$", buttonIndex + index);
     if _G[newButtonName] and _G[newButtonName]:IsVisible() then
         SetButton(_G[newButtonName]);
     end
@@ -63,11 +73,10 @@ end
 MICRO_BUTTONS = { "CharacterMicroButton", "SpellbookMicroButton", "TalentMicroButton", "AchievementMicroButton", "QuestLogMicroButton", "SocialsMicroButton", "PVPMicroButton", "LFDMicroButton", "MainMenuMicroButton", "HelpMicroButton" };
 function SetMicroButton(button)
     if S_BUTTON == nil then
-        MoveCursor(button);
-        S_BUTTON = button;
+        SetButton(button);
     else
         ClearButton();
-        SetCursorPosition(0.5, 0.25);
+        CloseMenus();
     end
 end
 
