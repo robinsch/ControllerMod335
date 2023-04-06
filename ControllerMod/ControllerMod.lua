@@ -3,6 +3,7 @@ ControllerMod = {}
 S_BUTTON = nil;
 
 BINDING_HEADER_CONTROLLERMOD = "Controller Mod"
+BINDING_NAME_START = "Start"
 BINDING_NAME_INTERACT = "Interact"
 BINDING_NAME_BACK = "Back"
 BINDING_NAME_LEFT = "Left"
@@ -23,7 +24,15 @@ StaticPopupDialogs["POPUP_EXTENSIONS"] = {
 
 -- @robinsch: button helpers
 function ClickButton()
+    if S_BUTTON == nil then
+        return false
+    elseif S_BUTTON:GetName() == "CharacterMicroButton" then
+        ToggleCharacter("PaperDollFrame");
+        return true
+    end
+
     S_BUTTON:Click();
+    return true
 end
 
 function ClearButton()
@@ -47,6 +56,30 @@ function SetButtonIndex(index)
     local newButtonName = string.gsub(buttonName, buttonIndex, buttonIndex + index);
     if _G[newButtonName] and _G[newButtonName]:IsVisible() then
         SetButton(_G[newButtonName]);
+    end
+end
+
+-- @robinsch: micro button helpers
+MICRO_BUTTONS = { "CharacterMicroButton", "SpellbookMicroButton", "TalentMicroButton", "AchievementMicroButton", "QuestLogMicroButton", "SocialsMicroButton", "PVPMicroButton", "LFDMicroButton", "MainMenuMicroButton", "HelpMicroButton" };
+function SetMicroButton(button)
+    if S_BUTTON == nil then
+        MoveCursor(button);
+        S_BUTTON = button;
+    else
+        ClearButton();
+        SetCursorPosition(0.5, 0.25);
+    end
+end
+
+function SetMicroButtonIndex(index)
+    if S_BUTTON == nil then return end
+    local buttonName = S_BUTTON:GetName();
+    for i, v in ipairs(MICRO_BUTTONS) do
+        if v == buttonName then
+            if _G[MICRO_BUTTONS[i + index]] then
+                SetButton(_G[MICRO_BUTTONS[i + index]]);
+            end
+        end
     end
 end
 
@@ -79,6 +112,7 @@ EVENT_HANDLERS =
 }
 
 -- @robinsch: binding handlers (Esc -> Key Bindings -> ControllerMod)
+-- sorted by priority
 BINDING_HANDLERS =
 {
     GossipFrame =
@@ -109,6 +143,14 @@ BINDING_HANDLERS =
         Right = { SetButton, "QuestFrameDeclineButton" },
         Up = { ClickButton, "QuestDetailScrollFrameScrollBarScrollUpButton"  },
         Down = { ClickButton, "QuestDetailScrollFrameScrollBarScrollDownButton"  },
+    },
+
+    WorldFrame =
+    {
+        Start = { SetMicroButton, "CharacterMicroButton"},
+        Interact = { ClickButton },
+        Left = { SetMicroButtonIndex, -1 },
+        Right = { SetMicroButtonIndex, 1 },
     },
 }
 
@@ -141,12 +183,22 @@ function CheckDLL(self)
 end
 
 -- @robinsch: Bindings.xml handlers
-function ControllerMod_Interact()
+function ControllerMod_Start()
+    for frame, handler in pairs(BINDING_HANDLERS) do
+        if _G[frame] and _G[frame]:IsVisible() and handler["Start"] then
+            ControllerMod_Handle(handler["Start"]);
+            return
+        end
+    end
+end
 
+function ControllerMod_Interact()
     for frame, handler in pairs(BINDING_HANDLERS) do
         if _G[frame] and _G[frame]:IsVisible() and handler["Interact"] then
-            ControllerMod_Handle(handler["Interact"]);
-            return
+            if ControllerMod_Handle(handler["Interact"]) then
+                print("Return")
+                return
+            end
         end
     end
 
@@ -196,21 +248,23 @@ end
 function ControllerMod_Handle(handle)
     local fn = handle[1];
     if fn == nil then
-        return
+        return false
     end
 
     -- @robinsch: handle fn parameter parsing
-    if fn == SetButton then
-        SetButton(_G[handle[2]]);
+    if fn == SetButton or fn == SetMicroButton then
+        return fn(_G[handle[2]]);
     elseif fn == ClickButton then
         if handle[2] then
             _G[handle[2]]:Click();
         else
-            ClickButton(S_BUTTON);
+            return ClickButton(S_BUTTON);
         end
-    elseif fn == SetButtonIndex then
-        SetButtonIndex(handle[2]);
+    elseif fn == SetButtonIndex or fn == SetMicroButtonIndex then
+        return fn(handle[2]);
     else
-        fn();
+        return fn();
     end
+
+    return false
 end

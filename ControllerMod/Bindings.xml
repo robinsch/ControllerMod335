@@ -1,5 +1,8 @@
 <Bindings>
-  <Binding name="INTERACT" header="CONTROLLERMOD">
+  <Binding name="START" header="CONTROLLERMOD">
+    ControllerMod_Start();
+  </Binding>
+  <Binding name="INTERACT">
     ControllerMod_Interact();
   </Binding>
   <Binding name="BACK">
