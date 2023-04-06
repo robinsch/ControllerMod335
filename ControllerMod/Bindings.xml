@@ -1,0 +1,20 @@
+<Bindings>
+  <Binding name="INTERACT" header="CONTROLLERMOD">
+    ControllerMod_Interact();
+  </Binding>
+  <Binding name="BACK">
+    ControllerMod_Back();
+  </Binding>
+  <Binding name="LEFT">
+    ControllerMod_Left();
+  </Binding>
+  <Binding name="RIGHT">
+    ControllerMod_Right();
+  </Binding>
+  <Binding name="UP">
+    ControllerMod_Up();
+  </Binding>
+  <Binding name="DOWN">
+    ControllerMod_Down();
+  </Binding>
+</Bindings>
