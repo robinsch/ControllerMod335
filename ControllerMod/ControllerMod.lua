@@ -60,13 +60,56 @@ function SetButtonIndex(index)
     end
 
     if buttonIndex == nil then
-        return
+        return false
     end
 
     local newButtonName = string.gsub(buttonName, buttonIndex .. "$", buttonIndex + index);
     if _G[newButtonName] and _G[newButtonName]:IsVisible() then
         SetButton(_G[newButtonName]);
+        return true
     end
+
+    return false
+end
+
+function SetBagIndex(index)
+    if S_BUTTON == nil then return end
+    local buttonName = S_BUTTON:GetName();
+
+    local bagIndex, itemIndex;
+    local i = 1;
+    for idx in string.gmatch(buttonName, "%d+") do
+        if i == 1 then bagIndex = tonumber(idx) end
+        if i == 2 then itemIndex = tonumber(idx) end
+        i = i + 1;
+    end 
+
+    if bagIndex == nil or itemIndex == nil then
+        return false
+    end
+
+    local numSlots = GetContainerNumSlots(bagIndex - 1);
+    if ( itemIndex + index ) > GetContainerNumSlots(bagIndex - 1) then
+        if bagIndex < 5 then
+            bagIndex = bagIndex + 1;
+            itemIndex = ( itemIndex + index ) % numSlots;
+        end
+    elseif ( itemIndex + index ) < 1 then
+        if bagIndex < 5 then
+            bagIndex = bagIndex - 1;
+            itemIndex = ( itemIndex + index ) % numSlots;
+        end
+    else
+        itemIndex = itemIndex + index;
+    end
+        
+    local newButtonName = "ContainerFrame" .. bagIndex .. "Item" .. itemIndex;
+    if _G[newButtonName] and _G[newButtonName]:IsVisible() then
+        SetButton(_G[newButtonName]);
+        return true
+    end
+
+    return false
 end
 
 -- @robinsch: micro button helpers
@@ -154,6 +197,15 @@ BINDING_HANDLERS =
         Down = { ClickButton, "QuestDetailScrollFrameScrollBarScrollDownButton"  },
     },
 
+    ContainerFrame1 =
+    {
+        Interact = { ClickButton },
+        Left = { SetBagIndex, 1 },
+        Right = { SetBagIndex, -1 },
+        Up = { SetBagIndex, 4 },
+        Down = { SetBagIndex, -4 },
+    },
+
     WorldFrame =
     {
         Start = { SetMicroButton, "CharacterMicroButton"},
@@ -162,6 +214,14 @@ BINDING_HANDLERS =
         Right = { SetMicroButtonIndex, 1 },
     },
 }
+
+ContainerFrame1:HookScript("OnShow", function(self)
+    SetButton(_G["ContainerFrame1Item16"]);
+    _G["CharacterBag0Slot"]:Click();
+    _G["CharacterBag1Slot"]:Click();
+    _G["CharacterBag2Slot"]:Click();
+    _G["CharacterBag3Slot"]:Click();
+end)
 
 local frame = CreateFrame("Frame")
 frame:RegisterEvent("ADDON_LOADED")
@@ -205,7 +265,6 @@ function ControllerMod_Interact()
     for frame, handler in pairs(BINDING_HANDLERS) do
         if _G[frame] and _G[frame]:IsVisible() and handler["Interact"] then
             if ControllerMod_Handle(handler["Interact"]) then
-                print("Return")
                 return
             end
         end
@@ -269,7 +328,7 @@ function ControllerMod_Handle(handle)
         else
             return ClickButton(S_BUTTON);
         end
-    elseif fn == SetButtonIndex or fn == SetMicroButtonIndex then
+    elseif fn == SetButtonIndex or fn == SetMicroButtonIndex or fn == SetBagIndex then
         return fn(handle[2]);
     else
         return fn();
