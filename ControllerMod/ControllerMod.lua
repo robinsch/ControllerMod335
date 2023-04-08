@@ -114,6 +114,54 @@ function SetBagIndex(index)
     return false
 end
 
+FRAME_BUTTONS =
+{
+    QuestLogFrame =
+    { 
+        "QuestLogFrameAbandonButton", "QuestLogFramePushQuestButton", "QuestLogFrameTrackButton", "QuestLogFrameCancelButton"
+    },
+}
+
+function SetFrameLRIndex(frame, index)
+    if S_BUTTON == nil then return end
+    local buttonName = S_BUTTON:GetName();
+
+    local buttonIndex = 0;
+    for i, v in ipairs(FRAME_BUTTONS[frame:GetName()]) do
+        if v == buttonName then
+            buttonIndex = i;
+            break;
+        end
+    end
+
+    if index > 0 then
+        for i = ( buttonIndex + index ), #FRAME_BUTTONS[frame:GetName()] do
+            local newButton = _G[FRAME_BUTTONS[frame:GetName()][i]];
+            if newButton and newButton:IsEnabled() == 1 then
+                SetButton(_G[FRAME_BUTTONS[frame:GetName()][i]]);
+                return
+            end
+        end
+    else
+        for i = ( buttonIndex + index ), 1, index do
+            local newButton = _G[FRAME_BUTTONS[frame:GetName()][i]];
+            if newButton and newButton:IsEnabled() == 1 then
+                SetButton(_G[FRAME_BUTTONS[frame:GetName()][i]]);
+                return
+            end
+        end
+    end
+end
+
+function QuestLogFrame_Right()
+    if CursorHasItem() then
+        ClearCursor();
+    else
+        ClearButton();
+        CloseAllBags();
+    end
+end
+
 -- @robinsch: micro button helpers
 MICRO_BUTTONS = { "CharacterMicroButton", "SpellbookMicroButton", "TalentMicroButton", "AchievementMicroButton", "QuestLogMicroButton", "SocialsMicroButton", "PVPMicroButton", "LFDMicroButton", "MainMenuMicroButton", "HelpMicroButton" };
 function SetMicroButton(button)
@@ -199,9 +247,20 @@ BINDING_HANDLERS =
         Down = { ClickButton, "QuestDetailScrollFrameScrollBarScrollDownButton"  },
     },
 
+    QuestLogFrame =
+    {
+        Button_A = { ClickButton },
+        Button_B = { ClickButton, "QuestLogFrameCloseButton" },
+        Left = { SetFrameLRIndex, -1 },
+        Right = { SetFrameLRIndex, 1 },
+        Up = { SetButtonIndex, -1 },
+        Down = { SetButtonIndex, 1 },
+    },
+
     ContainerFrame1 =
     {
         Button_A = { ClickButton },
+        Button_B = { ContainerFrame1_Button_B },
         Left = { SetBagIndex, 1 },
         Right = { SetBagIndex, -1 },
         Up = { SetBagIndex, 4 },
@@ -217,6 +276,14 @@ BINDING_HANDLERS =
         Right = { SetMicroButtonIndex, 1 },
     },
 }
+
+QuestLogFrame:HookScript("OnShow", function(self)
+    SetButton(_G["QuestLogScrollFrameButton1"]);
+end)
+
+QuestLogFrame:HookScript("OnHide", function(self)
+    ClearButton();
+end)
 
 ContainerFrame1:HookScript("OnShow", function(self)
     SetButton(_G["ContainerFrame1Item16"]);
@@ -262,7 +329,7 @@ end
 function ControllerMod_Start()
     for frame, handler in pairs(BINDING_HANDLERS) do
         if _G[frame] and _G[frame]:IsVisible() and handler["Start"] then
-            ControllerMod_Handle(handler["Start"]);
+            ControllerMod_Handle(_G[frame], handler["Start"]);
             return
         end
     end
@@ -271,7 +338,7 @@ end
 function ControllerMod_Back()
     for frame, handler in pairs(BINDING_HANDLERS) do
         if _G[frame] and _G[frame]:IsVisible() and handler["Back"] then
-            if ControllerMod_Handle(handler["Back"]) then
+            if ControllerMod_Handle(_G[frame], handler["Back"]) then
                 return
             end
         end
@@ -281,7 +348,7 @@ end
 function ControllerMod_Button_A()
     for frame, handler in pairs(BINDING_HANDLERS) do
         if _G[frame] and _G[frame]:IsVisible() and handler["Button_A"] then
-            if ControllerMod_Handle(handler["Button_A"]) then
+            if ControllerMod_Handle(_G[frame], handler["Button_A"]) then
                 return
             end
         end
@@ -293,7 +360,7 @@ end
 function ControllerMod_Button_B()
     for frame, handler in pairs(BINDING_HANDLERS) do
         if _G[frame] and _G[frame]:IsVisible() and handler["Button_B"] then
-            ControllerMod_Handle(handler["Button_B"]);
+            ControllerMod_Handle(_G[frame], handler["Button_B"]);
         end
     end    
 end
@@ -301,7 +368,7 @@ end
 function ControllerMod_Left()
     for frame, handler in pairs(BINDING_HANDLERS) do
         if _G[frame] and _G[frame]:IsVisible() and handler["Left"] then
-            ControllerMod_Handle(handler["Left"]);
+            ControllerMod_Handle(_G[frame], handler["Left"]);
         end
     end   
 end
@@ -309,7 +376,7 @@ end
 function ControllerMod_Right()
     for frame, handler in pairs(BINDING_HANDLERS) do
         if _G[frame] and _G[frame]:IsVisible() and handler["Right"] then
-            ControllerMod_Handle(handler["Right"]);
+            ControllerMod_Handle(_G[frame], handler["Right"]);
         end
     end   
 end
@@ -317,7 +384,7 @@ end
 function ControllerMod_Up()
     for frame, handler in pairs(BINDING_HANDLERS) do
         if _G[frame] and _G[frame]:IsVisible() and handler["Up"] then
-            ControllerMod_Handle(handler["Up"]);
+            ControllerMod_Handle(_G[frame], handler["Up"]);
         end
     end  
 end
@@ -325,12 +392,12 @@ end
 function ControllerMod_Down()
     for frame, handler in pairs(BINDING_HANDLERS) do
         if _G[frame] and _G[frame]:IsVisible() and handler["Down"] then
-            ControllerMod_Handle(handler["Down"]);
+            ControllerMod_Handle(_G[frame], handler["Down"]);
         end
     end  
 end
 
-function ControllerMod_Handle(handle)
+function ControllerMod_Handle(frame, handle)
     local fn = handle[1];
     if fn == nil then
         return false
@@ -347,6 +414,8 @@ function ControllerMod_Handle(handle)
         end
     elseif fn == SetButtonIndex or fn == SetMicroButtonIndex or fn == SetBagIndex then
         return fn(handle[2]);
+    elseif fn == SetFrameLRIndex then
+        return fn(frame, handle[2])
     else
         return fn();
     end
