@@ -2,11 +2,14 @@
   <Binding name="START" header="CONTROLLERMOD">
     ControllerMod_Start();
   </Binding>
-  <Binding name="INTERACT">
-    ControllerMod_Interact();
-  </Binding>
   <Binding name="BACK">
     ControllerMod_Back();
+  </Binding>
+  <Binding name="BUTTON_A">
+    ControllerMod_Button_A();
+  </Binding>
+  <Binding name="BUTTON_B">
+    ControllerMod_Button_B();
   </Binding>
   <Binding name="LEFT">
     ControllerMod_Left();
