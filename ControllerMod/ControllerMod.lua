@@ -97,7 +97,7 @@ function SetBagIndex(index)
     elseif ( itemIndex + index ) < 1 then
         if bagIndex < 5 then
             bagIndex = bagIndex - 1;
-            itemIndex = ( itemIndex + index ) % numSlots;
+            itemIndex = GetContainerNumSlots(bagIndex - 1) + ( itemIndex + index );
         end
     else
         itemIndex = itemIndex + index;
