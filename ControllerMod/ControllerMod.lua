@@ -286,6 +286,10 @@ QuestLogFrame:HookScript("OnHide", function(self)
 end)
 
 ContainerFrame1:HookScript("OnShow", function(self)
+    if not CheckDLL() then
+        return StaticPopup_Show("POPUP_EXTENSIONS")
+    end
+
     SetButton(_G["ContainerFrame1Item16"]);
     _G["CharacterBag0Slot"]:Click();
     _G["CharacterBag1Slot"]:Click();
@@ -294,6 +298,10 @@ ContainerFrame1:HookScript("OnShow", function(self)
 end)
 
 ContainerFrame1:HookScript("OnHide", function(self)
+    if not CheckDLL() then
+        return StaticPopup_Show("POPUP_EXTENSIONS")
+    end
+
     ClearButton();
 end)
 
@@ -301,16 +309,18 @@ local frame = CreateFrame("Frame")
 frame:RegisterEvent("ADDON_LOADED")
 
 -- @robinsch: register event listeners
-for event, _ in pairs(EVENT_HANDLERS) do
-    frame:RegisterEvent(event);
+if CheckDLL() then
+    for event, _ in pairs(EVENT_HANDLERS) do
+        frame:RegisterEvent(event);
+    end
 end
 
 frame:SetScript("OnEvent", function(self, event, ...)
-    if event == "ADDON_LOADED" then
-        if not CheckDLL() then
-            return StaticPopup_Show("POPUP_EXTENSIONS")
-        end
+    if not CheckDLL() then
+        return StaticPopup_Show("POPUP_EXTENSIONS")
+    end
 
+    if event == "ADDON_LOADED" then
         SetCVar("autoLootDefault", 1);
     end
 
