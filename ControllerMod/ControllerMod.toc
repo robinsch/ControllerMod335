@@ -5,4 +5,6 @@
 ## SavedVariables: ControllerMod
 
 ControllerMod.lua
+ControllerModOptions.xml
+ControllerModOptions.lua
 

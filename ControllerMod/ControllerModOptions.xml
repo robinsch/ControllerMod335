@@ -1,0 +1,75 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ http://wowprogramming.com/FrameXML/UI.xsd">
+
+  <Frame name="ControllerModOptions" hidden="true" parent="InterfaceOptionsFramePanelContainer">
+    <Layers>
+      <Layer level="ARTWORK">
+        <FontString name="$parentTitle" text="Controller Mod" inherits="GameFontNormalLarge" justifyH="LEFT" justifyV="TOP">
+          <Anchors>
+            <Anchor point="TOPLEFT">
+              <Offset>
+                <AbsDimension x="16" y="-16"/>
+              </Offset>
+            </Anchor>
+          </Anchors>
+        </FontString>
+        <FontString name="$parentSubText" text="These options allow you to control various actioncam settings." inherits="GameFontHighlightSmall" nonspacewrap="true" maxLines="3" justifyH="LEFT" justifyV="TOP">
+          <Size>
+            <AbsDimension y="32" x="0"/>
+          </Size>
+          <Anchors>
+            <Anchor point="TOPLEFT" relativeTo="$parentTitle" relativePoint="BOTTOMLEFT">
+              <Offset>
+                <AbsDimension x="0" y="-8"/>
+              </Offset>
+            </Anchor>
+            <Anchor point="RIGHT">
+              <Offset>
+                <AbsDimension x="-32" y="0"/>
+              </Offset>
+            </Anchor>
+          </Anchors>
+        </FontString>
+      </Layer>
+    </Layers>
+    <Frames>
+      <Slider name="$parentActionAngle" inherits="OptionsSliderTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="$parentSubText" relativePoint="TOPRIGHT" x="26" y="0"/>
+        </Anchors>
+        <Layers>
+          <Layer level="ARTWORK">
+            <FontString name="$parentCurrent" parentKey="Current" inherits="GameFontNormalSmall">
+              <Anchors>
+                <Anchor point="TOP" relativePoint="BOTTOM" x="0" y="-2"/>
+              </Anchors>
+            </FontString>
+          </Layer>
+        </Layers>
+        <Scripts>
+          <OnLoad>
+            local low = _G[self:GetName().."Low"]
+            low:SetText("Lower")
+            local high = _G[self:GetName().."High"]
+            high:SetText("Default")
+            self.type = CONTROLTYPE_SLIDER;
+            self.cvar = "MT_ActionAngle";
+            self.SetDisplayValue = self.SetValue;
+            self.SetValue = function (self, value)
+            BlizzardOptionsPanel_SetCVarSafe(self.cvar, value);
+            ControllerModOptions_UpdateSettings(self.cvar, value)
+            end
+            BlizzardOptionsPanel_RegisterControl(self, self:GetParent());
+          </OnLoad>
+          <OnValueChanged>
+            self.newValue = value;
+            ControllerModOptions_UpdateSettings(self.cvar, value)
+          </OnValueChanged>
+        </Scripts>
+      </Slider>
+    </Frames>
+    <Scripts>
+      <OnLoad function="ControllerModOptions_OnLoad"/>
+      <OnEvent function="ControllerModOptions_OnEvent"/>
+    </Scripts>
+  </Frame>
+</Ui>

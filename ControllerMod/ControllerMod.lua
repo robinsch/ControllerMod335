@@ -1,5 +1,11 @@
 ControllerMod = {}
 
+-- @robinsch: check if DLL lua API is injected
+function CheckDLL(self)
+    return InteractNearest and SetCursorPosition;
+end
+
+
 S_BUTTON = nil;
 
 BINDING_HEADER_CONTROLLERMOD = "Controller Mod"
@@ -30,7 +36,23 @@ function CloseMenus()
 end
 
 -- @robinsch: button helpers
-function ClickButton()
+function ClickButtonA()
+    if UnitExists("target") and not UnitIsFriend("player", "target") then
+        ActionButton1:Click();
+    else
+        InteractNearest();
+    end
+end
+
+function ClickButtonB()
+    if UnitExists("target") and not UnitIsFriend("player", "target") then
+        ActionButton1:Click();
+    else
+        InteractNearest();
+    end
+end
+
+function ClickButtonLeft()
     if S_BUTTON == nil then
         return false
     elseif S_BUTTON:GetName() == "CharacterMicroButton" then
@@ -38,7 +60,16 @@ function ClickButton()
         return true
     end
 
-    S_BUTTON:Click();
+    S_BUTTON:Click("LeftButton");
+    return true
+end
+
+function ClickButtonRight()
+    if S_BUTTON == nil then
+        return false
+    end
+
+    S_BUTTON:Click("RightButton");
     return true
 end
 
@@ -66,6 +97,28 @@ function SetButtonIndex(index)
     end
 
     local newButtonName = string.gsub(buttonName, buttonIndex .. "$", buttonIndex + index);
+    if _G[newButtonName] and _G[newButtonName]:IsVisible() then
+        SetButton(_G[newButtonName]);
+        return true
+    end
+
+    return false
+end
+
+function SetMerchantIndex(index)
+    if S_BUTTON == nil then return end
+    local buttonName = S_BUTTON:GetName();
+
+    local merchantIndex = string.match(buttonName, "%d+");
+
+    local numSlots = GetMerchantNumItems();
+    if ( merchantIndex + index ) > numSlots then
+        return
+    else
+        merchantIndex = merchantIndex + index;
+    end
+        
+    local newButtonName = "MerchantItem" .. merchantIndex .. "ItemButton";
     if _G[newButtonName] and _G[newButtonName]:IsVisible() then
         SetButton(_G[newButtonName]);
         return true
@@ -210,7 +263,7 @@ EVENT_HANDLERS =
 
     QUEST_GREETING  = { SetButton, "QuestTitleButton1" },
     QUEST_DETAIL    = { SetButton, "QuestFrameAcceptButton" },
-    QUEST_FINISHED  = { ClearButton },
+    QUEST_FINISHED  = { ClearButton }
 }
 
 -- @robinsch: binding handlers (Esc -> Key Bindings -> ControllerMod)
@@ -219,7 +272,7 @@ BINDING_HANDLERS =
 {
     GossipFrame =
     {
-        Button_A = { ClickButton },
+        Button_A = { ClickButtonLeft },
         Button_B = { CloseGossip },
         Left = { SetButton, "GossipTitleButton1" },
         Right = { SetButton, "GossipFrameGreetingGoodbyeButton" },
@@ -229,7 +282,7 @@ BINDING_HANDLERS =
 
     QuestFrameGreetingPanel =
     {
-        Interact = { ClickButton },
+        Button_A = { ClickButtonLeft },
         Button_B = { CloseQuest },
         Left = { SetButton, "QuestTitleButton1" },
         Right = { SetButton, "QuestFrameGreetingGoodbyeButton" },
@@ -239,28 +292,48 @@ BINDING_HANDLERS =
 
     QuestFrameDetailPanel =
     {
-        Button_A = { ClickButton },
+        Button_A = { ClickButtonLeft },
         Button_B = { CloseQuest },
         Left = { SetButton, "QuestFrameAcceptButton" },
         Right = { SetButton, "QuestFrameDeclineButton" },
-        Up = { ClickButton, "QuestDetailScrollFrameScrollBarScrollUpButton"  },
-        Down = { ClickButton, "QuestDetailScrollFrameScrollBarScrollDownButton"  },
+        Up = { ClickButtonLeft, "QuestDetailScrollFrameScrollBarScrollUpButton"  },
+        Down = { ClickButtonLeft, "QuestDetailScrollFrameScrollBarScrollDownButton"  },
+    },
+
+    QuestFrameRewardPanel =
+    {
+        Button_A = { ClickButtonLeft },
+        Button_B = { CloseQuest },
+        Left = { SetButton, "QuestFrameCompleteQuestButton" },
+        Right = { SetButton, "QuestFrameCancelButton" },
+        Up = { ClickButtonLeft, "QuestRewardScrollFrameScrollBarScrollUpButton"  },
+        Down = { ClickButtonLeft, "QuestRewardScrollFrameScrollBarScrollDownButton"  },
     },
 
     QuestLogFrame =
     {
-        Button_A = { ClickButton },
-        Button_B = { ClickButton, "QuestLogFrameCloseButton" },
+        Button_A = { ClickButtonLeft },
+        Button_B = { ClickButtonLeft, "QuestLogFrameCloseButton" },
         Left = { SetFrameLRIndex, -1 },
         Right = { SetFrameLRIndex, 1 },
         Up = { SetButtonIndex, -1 },
         Down = { SetButtonIndex, 1 },
     },
 
+    MerchantFrame =
+    {
+        Button_A = { ClickButtonLeft },
+        Button_B = { ClickButtonRight },
+        Left = { SetMerchantIndex, -1 },
+        Right = { SetMerchantIndex, 1 },
+        Up = { SetMerchantIndex, -2 },
+        Down = { SetMerchantIndex, 2 },
+    },
+
     ContainerFrame1 =
     {
-        Button_A = { ClickButton },
-        Button_B = { ContainerFrame1_Button_B },
+        Button_A = { ClickButtonLeft },
+        Button_B = { ClickButtonRight },
         Left = { SetBagIndex, 1 },
         Right = { SetBagIndex, -1 },
         Up = { SetBagIndex, 4 },
@@ -269,9 +342,8 @@ BINDING_HANDLERS =
 
     WorldFrame =
     {
-        Start = { ClickButton, "MainMenuBarBackpackButton"},
+        Start = { ClickButtonLeft, "MainMenuBarBackpackButton"},
         Back = { SetMicroButton, "CharacterMicroButton" },
-        Button_A = { ClickButton },
         Left = { SetMicroButtonIndex, -1 },
         Right = { SetMicroButtonIndex, 1 },
     },
@@ -283,6 +355,18 @@ end)
 
 QuestLogFrame:HookScript("OnHide", function(self)
     ClearButton();
+end)
+
+MerchantFrame:HookScript("OnShow", function(self)
+    if not CheckDLL() then
+        return StaticPopup_Show("POPUP_EXTENSIONS")
+    end
+
+    SetButton(_G["MerchantItem1ItemButton"]);
+    _G["CharacterBag0Slot"]:Click();
+    _G["CharacterBag1Slot"]:Click();
+    _G["CharacterBag2Slot"]:Click();
+    _G["CharacterBag3Slot"]:Click();
 end)
 
 ContainerFrame1:HookScript("OnShow", function(self)
@@ -330,11 +414,6 @@ frame:SetScript("OnEvent", function(self, event, ...)
     end
 end)
 
--- @robinsch: check if DLL lua API is injected
-function CheckDLL(self)
-    return InteractNearest and SetCursorPosition;
-end
-
 -- @robinsch: Bindings.xml handlers
 function ControllerMod_Start()
     for frame, handler in pairs(BINDING_HANDLERS) do
@@ -364,15 +443,19 @@ function ControllerMod_Button_A()
         end
     end
 
-    InteractNearest();
+    ClickButtonA();
 end
 
 function ControllerMod_Button_B()
     for frame, handler in pairs(BINDING_HANDLERS) do
         if _G[frame] and _G[frame]:IsVisible() and handler["Button_B"] then
-            ControllerMod_Handle(_G[frame], handler["Button_B"]);
+            if ControllerMod_Handle(_G[frame], handler["Button_B"]) then
+                return
+            end
         end
-    end    
+    end
+
+    ClickButtonB();
 end
 
 function ControllerMod_Left()
@@ -408,6 +491,10 @@ function ControllerMod_Down()
 end
 
 function ControllerMod_Handle(frame, handle)
+    if handle == nil then
+        return false
+    end
+
     local fn = handle[1];
     if fn == nil then
         return false
@@ -416,13 +503,20 @@ function ControllerMod_Handle(frame, handle)
     -- @robinsch: handle fn parameter parsing
     if fn == SetButton or fn == SetMicroButton then
         return fn(_G[handle[2]]);
-    elseif fn == ClickButton then
+    elseif fn == ClickButtonLeft then
         if handle[2] then
-            _G[handle[2]]:Click();
+            _G[handle[2]]:Click("LeftButton");
         else
-            return ClickButton(S_BUTTON);
+            return ClickButtonLeft(S_BUTTON);
         end
-    elseif fn == SetButtonIndex or fn == SetMicroButtonIndex or fn == SetBagIndex then
+    elseif fn == ClickButtonRight then
+        print("Right")
+        if handle[2] then
+            _G[handle[2]]:Click("RightButton");
+        else
+            return ClickButtonRight(S_BUTTON);
+    end
+    elseif fn == SetButtonIndex or fn == SetMicroButtonIndex or fn == SetBagIndex or fn == SetMerchantIndex then
         return fn(handle[2]);
     elseif fn == SetFrameLRIndex then
         return fn(frame, handle[2])
