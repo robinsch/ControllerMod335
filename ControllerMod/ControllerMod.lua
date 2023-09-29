@@ -263,7 +263,9 @@ EVENT_HANDLERS =
 
     QUEST_GREETING  = { SetButton, "QuestTitleButton1" },
     QUEST_DETAIL    = { SetButton, "QuestFrameAcceptButton" },
-    QUEST_FINISHED  = { ClearButton }
+    QUEST_FINISHED  = { ClearButton },
+
+    SPELLS_CHANGED  = { SetButton, "SpellButton1" },
 }
 
 -- @robinsch: binding handlers (Esc -> Key Bindings -> ControllerMod)
@@ -342,6 +344,7 @@ BINDING_HANDLERS =
 
     WorldFrame =
     {
+        Button_A = { ClickButtonLeft },
         Start = { ClickButtonLeft, "MainMenuBarBackpackButton"},
         Back = { SetMicroButton, "CharacterMicroButton" },
         Left = { SetMicroButtonIndex, -1 },
