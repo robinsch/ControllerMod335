@@ -74,11 +74,14 @@ function ClickButtonRight()
 end
 
 function ClearButton()
+    if S_BUTTON == nil then return end
+    print("(ClearButton) "..S_BUTTON:GetName());
     S_BUTTON = nil;
     SetCursorPosition(0.5, 0.25);
 end
 
 function SetButton(button)
+    print("(SetButton) "..button:GetName());
     if button == nil then return end
     MoveCursor(button)
     S_BUTTON = button
@@ -127,6 +130,42 @@ function SetMerchantIndex(index)
     return false
 end
 
+function SetSpellIndex(index)
+    if S_BUTTON == nil then return end
+    local buttonName = S_BUTTON:GetName();
+    local buttonIndex
+    for idx in string.gmatch (buttonName, "%d+") do
+        buttonIndex = idx
+    end
+
+    if buttonIndex == nil then
+        return false
+    end
+
+    if string.find(buttonName, "SpellBookSkillLineTab") then
+        -- @robinsch: clamp
+        if index == -2 then index = -1 end
+        if index == 2 then index = 1 end
+
+        if index == -1 then
+            SetButton(_G["SpellButton1"]);
+        end
+    else
+        if buttonIndex % 2 == 0 then
+            SetButton(_G["SpellBookSkillLineTab1"]);
+            return true
+        end
+    end
+
+    local newButtonName = string.gsub(buttonName, buttonIndex .. "$", buttonIndex + index);
+    if _G[newButtonName] and _G[newButtonName]:IsVisible() then
+        SetButton(_G[newButtonName]);
+        return true
+    end
+
+    return false
+end
+
 function SetBagIndex(index)
     if S_BUTTON == nil then return end
     local buttonName = S_BUTTON:GetName();
@@ -165,6 +204,18 @@ function SetBagIndex(index)
     end
 
     return false
+end
+
+function SetSpellButton()
+    if S_BUTTON == nil then return false end
+
+    if string.find(S_BUTTON:GetName(), "SpellBookSkillLineTab") then
+        return ClickButtonLeft();
+    end
+
+    local id = SpellBook_GetSpellID(S_BUTTON:GetID());
+    PickupSpell(id, BOOKTYPE_SPELL);
+    return true
 end
 
 FRAME_BUTTONS =
@@ -332,6 +383,15 @@ BINDING_HANDLERS =
         Down = { SetMerchantIndex, 2 },
     },
 
+    SpellBookFrame =
+    {
+        Button_A = { SetSpellButton },
+        Left = { SetSpellIndex, -1 },
+        Right = { SetSpellIndex, 1 },
+        Up = { SetSpellIndex, -2 },
+        Down = { SetSpellIndex, 2 },
+    },
+
     ContainerFrame1 =
     {
         Button_A = { ClickButtonLeft },
@@ -413,7 +473,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
 
     handler = EVENT_HANDLERS[event];
     if handler then
-         ControllerMod_Handle(handler);
+         ControllerMod_Handle(nil, handler);
     end
 end)
 
@@ -513,13 +573,12 @@ function ControllerMod_Handle(frame, handle)
             return ClickButtonLeft(S_BUTTON);
         end
     elseif fn == ClickButtonRight then
-        print("Right")
         if handle[2] then
             _G[handle[2]]:Click("RightButton");
         else
             return ClickButtonRight(S_BUTTON);
     end
-    elseif fn == SetButtonIndex or fn == SetMicroButtonIndex or fn == SetBagIndex or fn == SetMerchantIndex then
+    elseif fn == SetButtonIndex or fn == SetMicroButtonIndex or fn == SetBagIndex or fn == SetMerchantIndex or fn == SetSpellIndex then
         return fn(handle[2]);
     elseif fn == SetFrameLRIndex then
         return fn(frame, handle[2])
