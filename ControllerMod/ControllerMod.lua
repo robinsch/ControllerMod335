@@ -45,11 +45,7 @@ function ClickButtonA()
 end
 
 function ClickButtonB()
-    if UnitExists("target") and not UnitIsFriend("player", "target") then
-        ActionButton1:Click();
-    else
-        InteractNearest();
-    end
+    print("")
 end
 
 function ClickButtonLeft()
@@ -142,25 +138,64 @@ function SetSpellIndex(index)
         return false
     end
 
+    -- Cursor @ Spell Book (Skill Line Tab)
     if string.find(buttonName, "SpellBookSkillLineTab") then
+        -- Right => Unbind
+        if index == 1 then return true end
+
+        -- Left => SpellButton
+        if index == -1 then
+            SetButton(_G["SpellButton1"]);
+            return true
+        end
+
         -- @robinsch: clamp
         if index == -2 then index = -1 end
         if index == 2 then index = 1 end
-
-        if index == -1 then
-            SetButton(_G["SpellButton1"]);
-        end
-    else
-        if buttonIndex % 2 == 0 then
-            SetButton(_G["SpellBookSkillLineTab1"]);
+    -- Cursor @ Spell Book
+    elseif string.find(buttonName, "SpellButton") then
+        -- Down => Action Bar
+        if (buttonIndex + index) >= 12 then
+            SetButton(_G["ActionButton1"]);
             return true
         end
+
+        -- Cursor @ Left Side
+        if buttonIndex % 2 == 0 then
+            -- Right => Spell Book (Skill Line Tab)
+            if index == 1 then
+                SetButton(_G["SpellBookSkillLineTab1"]);
+                return true
+            end
+        -- Cursor @ Left Side
+        elseif buttonIndex % 1 == 0 then
+            -- Left => Unbind
+            if index == -1 then return true end
+        end
+    -- Cursor @ Action Bar
+    elseif string.find(buttonName, "ActionButton") then
+        -- Up to SpellButton
+        if index == -2 then
+            SetButton(_G["SpellButton1"]);
+        end
+
+        -- Down => Unbind
+        if index == 2 then return true end
     end
 
     local newButtonName = string.gsub(buttonName, buttonIndex .. "$", buttonIndex + index);
     if _G[newButtonName] and _G[newButtonName]:IsVisible() then
         SetButton(_G[newButtonName]);
         return true
+    else
+        -- @robinsch: for some classes ActionButton is called BonusActionButton
+        if string.find(buttonName, "ActionButton") then
+            newButtonName = "Bonus"..newButtonName;
+            if _G[newButtonName] and _G[newButtonName]:IsVisible() then
+                SetButton(_G[newButtonName]);
+                return true
+            end
+        end
     end
 
     return false
@@ -210,12 +245,38 @@ function SetSpellButton()
     if S_BUTTON == nil then return false end
 
     if string.find(S_BUTTON:GetName(), "SpellBookSkillLineTab") then
-        return ClickButtonLeft();
+        ClickButtonLeft();
+        return true;
+    end
+
+    if string.find(S_BUTTON:GetName(), "ActionButton") then
+        if GetCursorInfo() ~= nil then
+            PlaceAction(S_BUTTON:GetID());
+        else
+            PickupAction(S_BUTTON:GetID());
+        end
+
+        return true;
+    end
+
+    if S_BUTTON == _G["SpellbookMicroButton"] then
+        ClickButtonLeft();
+        return true;
     end
 
     local id = SpellBook_GetSpellID(S_BUTTON:GetID());
     PickupSpell(id, BOOKTYPE_SPELL);
-    return true
+    return true;
+end
+
+function ClearSpellButton()
+    if S_BUTTON == nil then
+        _G["SpellBookFrame"]:Hide();
+    end
+
+    print(S_BUTTON:GetName());
+    ClearCursor();
+    return true;
 end
 
 FRAME_BUTTONS =
@@ -315,6 +376,7 @@ EVENT_HANDLERS =
     QUEST_GREETING  = { SetButton, "QuestTitleButton1" },
     QUEST_DETAIL    = { SetButton, "QuestFrameAcceptButton" },
     QUEST_FINISHED  = { ClearButton },
+    QUEST_COMPLETE  = { SetButton, "QuestFrameCompleteQuestButton" },
 
     SPELLS_CHANGED  = { SetButton, "SpellButton1" },
 }
@@ -386,6 +448,7 @@ BINDING_HANDLERS =
     SpellBookFrame =
     {
         Button_A = { SetSpellButton },
+        Button_B = { ClearSpellButton },
         Left = { SetSpellIndex, -1 },
         Right = { SetSpellIndex, 1 },
         Up = { SetSpellIndex, -2 },
