@@ -5,22 +5,35 @@ In development, ControllerMod does not offer native controller support (yet). Yo
 * Supported Frames:
   * QuestFrame
   * GossipFrame
+  * MerchantFrame
+  * SpellBookFrame
+  * ContainerFrame
 
 * New LUA API:
   * InteractNearest()
   * SetCursorPosition(x, y)
+ 
+* New CVARs:
+  * autoTarget (enables targeting attack on melee attack or spell hit)
+  * tabTargetFriend (enables tab targeting to target friendly units)
 
 ### Installation
 1. Move Patcher.exe to WoW folder and run it.
 2. Move Extensions.dll to WoW folder.
 3. Move ControllerMod folder to WoW/Interface/Addons folder.
 
-### Keybinds / Profiles
+## Profiles
+[Steam](steam://controllerconfig/3255281634/3069784775 "Steam ControllerConfig ControllerMod335")
+
+## Steam Auto-Login
+You can enable auto login by entering launch options game properties general tab
+`-login "user" -password "pass" -realmName "Sunfury" - character "Testchar"`
+
+### Keybinds
 ESC -> Key Bindings -> Controller Mod
 
-![](https://i.gyazo.com/ace27b2a59a911a71f9edf2ea2fd7998.png)
+![](https://gyazo.com/c81c8b9009384bac1b2d3ff4a189d356)
 
-[XPadder](https://www.xpadder.com/ "XPadder") @ https://github.com/robinsch/ControllerMod335/blob/master/Profiles/Wow_Xbox_360.xpaddercontroller
 
 
 ### Updating
