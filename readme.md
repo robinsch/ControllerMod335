@@ -27,6 +27,7 @@ In development, ControllerMod does not offer native controller support (yet). Yo
 
 ## Steam Auto-Login
 You can enable auto login by entering launch options game properties general tab
+
 `-login "user" -password "pass" -realmName "Sunfury" - character "Testchar"`
 
 ### Keybinds
