@@ -23,7 +23,7 @@ In development, ControllerMod does not offer native controller support (yet). Yo
 3. Move ControllerMod folder to WoW/Interface/Addons folder.
 
 ## Profiles
-[Steam](steam://controllerconfig/3255281634/3069784775 "Steam ControllerConfig ControllerMod335")
+[Steam](steam://controllerconfig/3255281634/3069784775)
 
 ## Steam Auto-Login
 You can enable auto login by entering launch options game properties general tab
