@@ -1,5 +1,5 @@
 ### Notes
-In development, ControllerMod does not offer native controller support (yet). You need to use a software that allows you to map keyboard keys and mouse button actions to your game controller.
+In development, ControllerMod does not offer native controller support. You need to use Steam Big Picture Mode.
 
 ### Features
 * Supported Frames:
