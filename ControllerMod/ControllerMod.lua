@@ -2,7 +2,7 @@ ControllerMod = {}
 
 -- @robinsch: check if DLL lua API is injected
 function CheckDLL(self)
-    return InteractNearest and SetCursorPosition;
+    return InteractNearest and SetCursorPosition and DeleteCursorItemConfirm;
 end
 
 S_DEBUG = false;
@@ -347,11 +347,11 @@ function ClearSpellButton()
 end
 
 function DeleteItem()
-    local cursorType, _, link = GetCursorInfo();
-    if cursorType == "item" then
-        StaticPopup_Show("DELETE_ITEM", link);
+    if GetCursorInfo() = nil then
+        ClickButtonLeft();
     end
 
+    DeleteCursorItemConfirm();
     return true;
 end
 
@@ -458,6 +458,11 @@ EVENT_HANDLERS =
 
     TRADE_SKILL_SHOW  = { SetButton, "TradeSkillSkill2" },
     TRADE_SKILL_CLOSE = { ClearButton },
+
+    CHAT_MSG_SYSTEM = { ParseChat },
+
+    DELETE_ITEM_CONFIRM = { SetButton, "StaticPopup1Button1" },
+    CONFIRM_BINDER = { SetButton, "StaticPopup1Button1" },
 }
 
 -- @robinsch: binding handlers (Esc -> Key Bindings -> ControllerMod)
@@ -625,6 +630,12 @@ frame:SetScript("OnEvent", function(self, event, ...)
     if event == "ADDON_LOADED" then
         SetCVar("autoLootDefault", 1);
         SetCVar("cameraTerrainTilt", 1);
+    end
+
+    if event == "CHAT_MSG_SYSTEM" then
+        if string.find(select(1, ...), "is now your home.") then
+            ClearButton();
+        end
     end
 
     handler = EVENT_HANDLERS[event];
