@@ -66,10 +66,17 @@ end
 
 function ClickButtonLeft()
     if S_BUTTON == nil then
+        if S_DEBUG then
+            print("(ClickButtonLeft) nil");
+        end
         return false
     elseif S_BUTTON:GetName() == "CharacterMicroButton" then
         ToggleCharacter("PaperDollFrame");
         return true
+    end
+
+    if S_DEBUG then
+        print("(ClickButtonLeft) "..S_BUTTON:GetName());
     end
 
     S_BUTTON:Click("LeftButton");
@@ -97,11 +104,12 @@ function ClearButton()
 end
 
 function SetButton(button)
+    if button == nil then return end
+
     if S_DEBUG then
-        print("(ClearButton) "..S_BUTTON:GetName());
+        print("(SetButton) "..button:GetName());
     end
 
-    if button == nil then return end
     MoveCursor(button)
     S_BUTTON = button
 end
@@ -125,6 +133,36 @@ function SetButtonIndex(index)
     end
 
     return false
+end
+
+function SetTradeSkillIndex(index)
+    if not SetButtonIndex(index) then
+        if index == 1 then
+            if _G["TradeSkillListScrollFrameScrollBarScrollDownButton"]:IsEnabled() == 1 then
+                _G["TradeSkillListScrollFrameScrollBarScrollDownButton"]:Click();
+                SetButtonIndex(-3);
+            end
+        else
+            if _G["TradeSkillListScrollFrameScrollBarScrollUpButton"]:IsEnabled() == 1 then
+                _G["TradeSkillListScrollFrameScrollBarScrollUpButton"]:Click();
+                SetButtonIndex(3);
+            end
+        end
+    end
+
+    local _, type = GetTradeSkillInfo(S_BUTTON:GetID());
+    if type ~= "header" then
+        ClickButtonLeft();
+    end
+end
+
+function SetTradeSkillButton()
+    local _, type = GetTradeSkillInfo(S_BUTTON:GetID());
+    if type == "header" then
+        ClickButtonLeft();
+    else
+        _G["TradeSkillCreateButton"]:Click();
+    end
 end
 
 function SetMerchantIndex(index)
@@ -417,6 +455,9 @@ EVENT_HANDLERS =
     QUEST_COMPLETE  = { SetButton, "QuestFrameCompleteQuestButton" },
 
     SPELLS_CHANGED  = { SetButton, "SpellButton1" },
+
+    TRADE_SKILL_SHOW  = { SetButton, "TradeSkillSkill2" },
+    TRADE_SKILL_CLOSE = { ClearButton },
 }
 
 -- @robinsch: binding handlers (Esc -> Key Bindings -> ControllerMod)
@@ -471,6 +512,15 @@ BINDING_HANDLERS =
         Right = { SetFrameLRIndex, 1 },
         Up = { SetButtonIndex, -1 },
         Down = { SetButtonIndex, 1 },
+    },
+
+    TradeSkillFrame =
+    {
+        Button_A = { ClickTradeSkillButton },
+        Button_B = { ClickButtonLeft, "TradeSkillFrameCloseButton" },
+        Button_X = { ClickButtonLeft, "TradeSkillCreateAllButton" },
+        Up = { SetTradeSkillIndex, -1 },
+        Down = { SetTradeSkillIndex, 1 },
     },
 
     MerchantFrame =
@@ -707,16 +757,18 @@ function ControllerMod_Handle(frame, handle)
     elseif fn == ClickButtonLeft then
         if handle[2] then
             _G[handle[2]]:Click("LeftButton");
+            return true;
         else
             return ClickButtonLeft(S_BUTTON);
         end
     elseif fn == ClickButtonRight then
         if handle[2] then
             _G[handle[2]]:Click("RightButton");
+            return true;
         else
             return ClickButtonRight(S_BUTTON);
     end
-    elseif fn == SetButtonIndex or fn == SetMicroButtonIndex or fn == SetBagIndex or fn == SetMerchantIndex or fn == SetSpellIndex then
+    elseif fn == SetButtonIndex or fn == SetTradeSkillIndex or fn == SetMicroButtonIndex or fn == SetBagIndex or fn == SetMerchantIndex or fn == SetSpellIndex then
         return fn(handle[2]);
     elseif fn == SetFrameLRIndex then
         return fn(frame, handle[2])
