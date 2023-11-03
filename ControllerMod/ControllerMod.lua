@@ -574,6 +574,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
 
     if event == "ADDON_LOADED" then
         SetCVar("autoLootDefault", 1);
+        SetCVar("cameraTerrainTilt", 1);
     end
 
     handler = EVENT_HANDLERS[event];
