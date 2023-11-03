@@ -14,6 +14,8 @@ BINDING_NAME_INTERACT = "Interact"
 BINDING_NAME_BACK = "Back"
 BINDING_NAME_BUTTON_A = "Button A"
 BINDING_NAME_BUTTON_B = "Button B"
+BINDING_NAME_BUTTON_X = "Button X"
+BINDING_NAME_BUTTON_Y = "Button Y"
 BINDING_NAME_LEFT = "Left"
 BINDING_NAME_RIGHT = "Right"
 BINDING_NAME_UP = "Up"
@@ -38,6 +40,7 @@ end
 -- @robinsch: button helpers
 function ClickButtonA()
     if UnitExists("target") and not UnitIsFriend("player", "target") then
+        BT4Button1:Click();
         ActionButton1:Click();
     else
         InteractNearest();
@@ -45,7 +48,19 @@ function ClickButtonA()
 end
 
 function ClickButtonB()
-    print("")
+    if UnitExists("target") then
+        ClearTarget();
+    end
+end
+
+function ClickButtonX()
+    BT4Button13:Click();
+    ActionButton3:Click();
+end
+
+function ClickButtonY()
+    BT4Button37:Click();
+    ActionButton4:Click();
 end
 
 function ClickButtonLeft()
@@ -279,6 +294,15 @@ function ClearSpellButton()
     return true;
 end
 
+function DeleteItem()
+    local cursorType, _, link = GetCursorInfo();
+    if cursorType == "item" then
+        StaticPopup_Show("DELETE_ITEM", link);
+    end
+
+    return true;
+end
+
 FRAME_BUTTONS =
 {
     QuestLogFrame =
@@ -458,7 +482,9 @@ BINDING_HANDLERS =
     ContainerFrame1 =
     {
         Button_A = { ClickButtonLeft },
-        Button_B = { ClickButtonRight },
+        Button_B = { ClickButtonLeft, "MainMenuBarBackpackButton" },
+        Button_X = { ClickButtonRight },
+        Button_Y = { DeleteItem },
         Left = { SetBagIndex, 1 },
         Right = { SetBagIndex, -1 },
         Up = { SetBagIndex, 4 },
@@ -582,6 +608,30 @@ function ControllerMod_Button_B()
     end
 
     ClickButtonB();
+end
+
+function ControllerMod_Button_X()
+    for frame, handler in pairs(BINDING_HANDLERS) do
+        if _G[frame] and _G[frame]:IsVisible() and handler["Button_X"] then
+            if ControllerMod_Handle(_G[frame], handler["Button_X"]) then
+                return
+            end
+        end
+    end
+
+    ClickButtonX();
+end
+
+function ControllerMod_Button_Y()
+    for frame, handler in pairs(BINDING_HANDLERS) do
+        if _G[frame] and _G[frame]:IsVisible() and handler["Button_Y"] then
+            if ControllerMod_Handle(_G[frame], handler["Button_Y"]) then
+                return
+            end
+        end
+    end
+
+    ClickButtonY();
 end
 
 function ControllerMod_Left()

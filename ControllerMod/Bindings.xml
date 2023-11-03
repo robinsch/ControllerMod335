@@ -11,6 +11,12 @@
   <Binding name="BUTTON_B">
     ControllerMod_Button_B();
   </Binding>
+  <Binding name="BUTTON_X">
+    ControllerMod_Button_X();
+  </Binding>
+  <Binding name="BUTTON_Y">
+    ControllerMod_Button_Y();
+  </Binding>
   <Binding name="LEFT">
     ControllerMod_Left();
   </Binding>
