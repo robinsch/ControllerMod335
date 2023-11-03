@@ -123,6 +123,11 @@ function SetMerchantIndex(index)
     if S_BUTTON == nil then return end
     local buttonName = S_BUTTON:GetName();
 
+    -- @robinsch: ContainerFrame priorty if cursor is in container
+    if string.find(buttonName, "ContainerFrame") then
+        return false
+    end
+
     local merchantIndex = string.match(buttonName, "%d+");
 
     local numSlots = GetMerchantNumItems();
@@ -239,10 +244,8 @@ function SetBagIndex(index)
             itemIndex = ( itemIndex + index ) % numSlots;
         end
     elseif ( itemIndex + index ) < 1 then
-        if bagIndex < 5 then
-            bagIndex = bagIndex - 1;
-            itemIndex = GetContainerNumSlots(bagIndex - 1) + ( itemIndex + index );
-        end
+        bagIndex = bagIndex - 1;
+        itemIndex = GetContainerNumSlots(bagIndex - 1) + ( itemIndex + index );
     else
         itemIndex = itemIndex + index;
     end
@@ -462,7 +465,8 @@ BINDING_HANDLERS =
     MerchantFrame =
     {
         Button_A = { ClickButtonLeft },
-        Button_B = { ClickButtonRight },
+        Button_B = { ClickButtonLeft, "MerchantFrameCloseButton" },
+        Button_X = { ClickButtonRight },
         Left = { SetMerchantIndex, -1 },
         Right = { SetMerchantIndex, 1 },
         Up = { SetMerchantIndex, -2 },
@@ -539,6 +543,10 @@ ContainerFrame1:HookScript("OnHide", function(self)
     end
 
     ClearButton();
+
+    if _G["MerchantFrame"]:IsVisible() then
+        SetButton(_G["MerchantItem1ItemButton"]);
+    end
 end)
 
 local frame = CreateFrame("Frame")
@@ -637,7 +645,9 @@ end
 function ControllerMod_Left()
     for frame, handler in pairs(BINDING_HANDLERS) do
         if _G[frame] and _G[frame]:IsVisible() and handler["Left"] then
-            ControllerMod_Handle(_G[frame], handler["Left"]);
+            if ControllerMod_Handle(_G[frame], handler["Left"]) then
+                return
+            end
         end
     end   
 end
@@ -645,7 +655,9 @@ end
 function ControllerMod_Right()
     for frame, handler in pairs(BINDING_HANDLERS) do
         if _G[frame] and _G[frame]:IsVisible() and handler["Right"] then
-            ControllerMod_Handle(_G[frame], handler["Right"]);
+            if ControllerMod_Handle(_G[frame], handler["Right"]) then
+                return
+            end
         end
     end   
 end
@@ -653,7 +665,9 @@ end
 function ControllerMod_Up()
     for frame, handler in pairs(BINDING_HANDLERS) do
         if _G[frame] and _G[frame]:IsVisible() and handler["Up"] then
-            ControllerMod_Handle(_G[frame], handler["Up"]);
+            if ControllerMod_Handle(_G[frame], handler["Up"]) then
+                return
+            end
         end
     end  
 end
@@ -661,7 +675,9 @@ end
 function ControllerMod_Down()
     for frame, handler in pairs(BINDING_HANDLERS) do
         if _G[frame] and _G[frame]:IsVisible() and handler["Down"] then
-            ControllerMod_Handle(_G[frame], handler["Down"]);
+            if ControllerMod_Handle(_G[frame], handler["Down"]) then
+                return
+            end
         end
     end  
 end
