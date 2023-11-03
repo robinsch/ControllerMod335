@@ -5,6 +5,7 @@ function CheckDLL(self)
     return InteractNearest and SetCursorPosition;
 end
 
+S_DEBUG = false;
 
 S_BUTTON = nil;
 
@@ -86,13 +87,20 @@ end
 
 function ClearButton()
     if S_BUTTON == nil then return end
-    print("(ClearButton) "..S_BUTTON:GetName());
+
+    if S_DEBUG then
+        print("(ClearButton) "..S_BUTTON:GetName());
+    end
+
     S_BUTTON = nil;
     SetCursorPosition(0.5, 0.25);
 end
 
 function SetButton(button)
-    print("(SetButton) "..button:GetName());
+    if S_DEBUG then
+        print("(ClearButton) "..S_BUTTON:GetName());
+    end
+
     if button == nil then return end
     MoveCursor(button)
     S_BUTTON = button
@@ -292,7 +300,10 @@ function ClearSpellButton()
         _G["SpellBookFrame"]:Hide();
     end
 
-    print(S_BUTTON:GetName());
+    if S_DEBUG then
+        print(S_BUTTON:GetName());
+    end
+    
     ClearCursor();
     return true;
 end
@@ -385,7 +396,7 @@ function MoveCursor(button)
 end
 
 function GetNormalizedPosition(frame)
-    if GetCVar("gxMaximize") ~= 1 then
+    if GetCVar("gxWindow") == 1 and GetCVar("gxMaximize") ~= 1 then
         print("ControllerMod: Windowed Mode (Maximized = 0) is not supported yet!");
     end
 
@@ -519,10 +530,7 @@ MerchantFrame:HookScript("OnShow", function(self)
     end
 
     SetButton(_G["MerchantItem1ItemButton"]);
-    _G["CharacterBag0Slot"]:Click();
-    _G["CharacterBag1Slot"]:Click();
-    _G["CharacterBag2Slot"]:Click();
-    _G["CharacterBag3Slot"]:Click();
+    _G["MainMenuBarBackpackButton"]:Click();
 end)
 
 ContainerFrame1:HookScript("OnShow", function(self)
