@@ -1,5 +1,5 @@
 ### Notes
-In development, ControllerMod does not offer native controller support. You need to use Steam Big Picture Mode.
+In development, ControllerMod does not offer native controller support. You need to use [Steam Big Picture Mode](https://store.steampowered.com/bigpicture).
 
 ### Features
 * Supported Frames:
@@ -8,10 +8,13 @@ In development, ControllerMod does not offer native controller support. You need
   * MerchantFrame
   * SpellBookFrame
   * ContainerFrame
+  * StaticPopup
+  * TradeSkillFrame
 
 * New LUA API:
   * InteractNearest()
   * SetCursorPosition(x, y)
+  * DeleteCursorItemConfirm()
  
 * New CVARs:
   * autoTarget (enables targeting attack on melee attack or spell hit)
@@ -20,7 +23,7 @@ In development, ControllerMod does not offer native controller support. You need
 ### Installation
 1. Move Patcher.exe to WoW folder and run it.
 2. Move Extensions.dll to WoW folder.
-3. Move ControllerMod folder to WoW/Interface/Addons folder.
+3. Move patch-controllermod.mpq to WoW/Data folder.
 
 ## Steam Controller Profiles
 steam://controllerconfig/3255281634/3069784775
@@ -42,4 +45,4 @@ ESC -> Key Bindings -> Controller Mod
 
 ### Updating
 1. Replace Extensions.dll.
-2. Replace ControllerMod folder.
+2. Replace patch-controllermod in WoW/Data folder.
