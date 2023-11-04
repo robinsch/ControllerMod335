@@ -347,11 +347,12 @@ function ClearSpellButton()
 end
 
 function DeleteItem()
-    if GetCursorInfo() = nil then
+    if GetCursorInfo() == nil then
         ClickButtonLeft();
     end
 
     DeleteCursorItemConfirm();
+    
     return true;
 end
 
@@ -564,6 +565,7 @@ BINDING_HANDLERS =
     WorldFrame =
     {
         Button_A = { ClickButtonLeft },
+        Button_B = { ClearButton },
         Start = { ClickButtonLeft, "MainMenuBarBackpackButton"},
         Back = { SetMicroButton, "CharacterMicroButton" },
         Left = { SetMicroButtonIndex, -1 },
@@ -612,6 +614,25 @@ ContainerFrame1:HookScript("OnHide", function(self)
     end
 end)
 
+StaticPopup1:HookScript("OnHide", function(self)
+    ClearButton();
+end)
+
+function SetDefaultBindings()
+    if GetBindingKey("BUTTON_A") == nil then SetBinding("NUMPADPLUS", "BUTTON_A"); end
+    if GetBindingKey("BUTTON_B") == nil then SetBinding("NUMPADMINUS", "BUTTON_B"); end
+    if GetBindingKey("BUTTON_X") == nil then SetBinding("PAGEUP", "BUTTON_X"); end
+    if GetBindingKey("BUTTON_Y") == nil then SetBinding("PAGEDOWN", "BUTTON_Y"); end
+
+    if GetBindingKey("START") == nil then SetBinding("NUMPADMULTIPLY", "START"); end
+    if GetBindingKey("BACK") == nil then SetBinding("NUMPADDIVIDE", "BACK"); end
+
+    if GetBindingKey("LEFT") == nil then SetBinding("NUMPAD4", "LEFT"); end
+    if GetBindingKey("RIGHT") == nil then SetBinding("NUMPAD6", "RIGHT"); end
+    if GetBindingKey("UP") == nil then SetBinding("NUMPAD8", "UP"); end
+    if GetBindingKey("DOWN") == nil then SetBinding("NUMPAD2", "DOWN"); end
+end
+
 local frame = CreateFrame("Frame")
 frame:RegisterEvent("ADDON_LOADED")
 
@@ -630,12 +651,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
     if event == "ADDON_LOADED" then
         SetCVar("autoLootDefault", 1);
         SetCVar("cameraTerrainTilt", 1);
-    end
-
-    if event == "CHAT_MSG_SYSTEM" then
-        if string.find(select(1, ...), "is now your home.") then
-            ClearButton();
-        end
+        SetDefaultBindings();
     end
 
     handler = EVENT_HANDLERS[event];
