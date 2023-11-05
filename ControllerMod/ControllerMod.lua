@@ -5,7 +5,7 @@ function CheckDLL(self)
     return InteractNearest and SetCursorPosition and DeleteCursorItemConfirm;
 end
 
-S_DEBUG = false;
+S_DEBUG = true;
 
 S_BUTTON = nil;
 
@@ -40,7 +40,7 @@ end
 
 -- @robinsch: button helpers
 function ClickButtonA()
-    if UnitExists("target") and not UnitIsFriend("player", "target") then
+    if UnitExists("target") and not UnitIsFriend("player", "target") and not UnitIsDead("target") then
         BT4Button1:Click();
         ActionButton1:Click();
     else
@@ -55,11 +55,17 @@ function ClickButtonB()
 end
 
 function ClickButtonX()
+     if S_DEBUG then
+        print("(ClickButtonX)");
+    end
     BT4Button13:Click();
     ActionButton3:Click();
 end
 
 function ClickButtonY()
+    if S_DEBUG then
+        print("(ClickButtonY)");
+    end
     BT4Button37:Click();
     ActionButton4:Click();
 end
@@ -90,6 +96,20 @@ function ClickButtonRight()
 
     S_BUTTON:Click("RightButton");
     return true
+end
+
+function MoveCursor(button)
+    if button:IsVisible() then
+        x, y = GetNormalizedPosition(button);
+
+        if IsAddOnLoaded("Bartender4") and string.find(button:GetName(), "MicroButton") then
+            print(x);
+            print(y);
+            x = x - 0.225;
+        end
+
+        SetCursorPosition(x, y);
+    end
 end
 
 function ClearButton()
@@ -427,13 +447,6 @@ function SetMicroButtonIndex(index)
     end
 end
 
-function MoveCursor(button)
-    if button:IsVisible() then
-        x, y = GetNormalizedPosition(button);
-        SetCursorPosition(x, y);
-    end
-end
-
 function GetNormalizedPosition(frame)
     if GetCVar("gxWindow") == 1 and GetCVar("gxMaximize") ~= 1 then
         print("ControllerMod: Windowed Mode (Maximized = 0) is not supported yet!");
@@ -454,6 +467,7 @@ EVENT_HANDLERS =
     QUEST_DETAIL    = { SetButton, "QuestFrameAcceptButton" },
     QUEST_FINISHED  = { ClearButton },
     QUEST_COMPLETE  = { SetButton, "QuestFrameCompleteQuestButton" },
+    QUEST_PROGRESS  = { SetButton, "QuestFrameCompleteButton" },
 
     SPELLS_CHANGED  = { SetButton, "SpellButton1" },
 
@@ -461,15 +475,17 @@ EVENT_HANDLERS =
     TRADE_SKILL_CLOSE = { ClearButton },
 
     CHAT_MSG_SYSTEM = { ParseChat },
-
-    DELETE_ITEM_CONFIRM = { SetButton, "StaticPopup1Button1" },
-    CONFIRM_BINDER = { SetButton, "StaticPopup1Button1" },
 }
 
 -- @robinsch: binding handlers (Esc -> Key Bindings -> ControllerMod)
 -- sorted by priority
 BINDING_HANDLERS =
 {
+    StaticPopup1 =
+    {
+        Button_B = { ClickButtonLeft, "StaticPopup1Button2" },
+    },
+
     GossipFrame =
     {
         Button_A = { ClickButtonLeft },
@@ -582,19 +598,11 @@ QuestLogFrame:HookScript("OnHide", function(self)
 end)
 
 MerchantFrame:HookScript("OnShow", function(self)
-    if not CheckDLL() then
-        return StaticPopup_Show("POPUP_EXTENSIONS")
-    end
-
     SetButton(_G["MerchantItem1ItemButton"]);
     _G["MainMenuBarBackpackButton"]:Click();
 end)
 
 ContainerFrame1:HookScript("OnShow", function(self)
-    if not CheckDLL() then
-        return StaticPopup_Show("POPUP_EXTENSIONS")
-    end
-
     SetButton(_G["ContainerFrame1Item16"]);
     _G["CharacterBag0Slot"]:Click();
     _G["CharacterBag1Slot"]:Click();
@@ -603,10 +611,6 @@ ContainerFrame1:HookScript("OnShow", function(self)
 end)
 
 ContainerFrame1:HookScript("OnHide", function(self)
-    if not CheckDLL() then
-        return StaticPopup_Show("POPUP_EXTENSIONS")
-    end
-
     ClearButton();
 
     if _G["MerchantFrame"]:IsVisible() then
@@ -614,11 +618,26 @@ ContainerFrame1:HookScript("OnHide", function(self)
     end
 end)
 
+StaticPopup1:HookScript("OnShow", function(self)
+    SetButton(_G["StaticPopup1Button1"]);
+end)
+
 StaticPopup1:HookScript("OnHide", function(self)
     ClearButton();
+
+    if QuestLogFrame:IsVisible() then
+        SetButton(_G["QuestLogScrollFrameButton1"]);
+    end
 end)
 
 function SetDefaultBindings()
+    SetBinding("SHIFT-PAGEUP");
+    SetBinding("SHIFT-PAGEDOWN");
+    SetBinding("1");
+    SetBinding("2");
+    SetBinding("3");
+    SetBinding("4");
+
     if GetBindingKey("BUTTON_A") == nil then SetBinding("NUMPADPLUS", "BUTTON_A"); end
     if GetBindingKey("BUTTON_B") == nil then SetBinding("NUMPADMINUS", "BUTTON_B"); end
     if GetBindingKey("BUTTON_X") == nil then SetBinding("PAGEUP", "BUTTON_X"); end
@@ -637,10 +656,8 @@ local frame = CreateFrame("Frame")
 frame:RegisterEvent("ADDON_LOADED")
 
 -- @robinsch: register event listeners
-if CheckDLL() then
-    for event, _ in pairs(EVENT_HANDLERS) do
-        frame:RegisterEvent(event);
-    end
+for event, _ in pairs(EVENT_HANDLERS) do
+    frame:RegisterEvent(event);
 end
 
 frame:SetScript("OnEvent", function(self, event, ...)
@@ -652,6 +669,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
         SetCVar("autoLootDefault", 1);
         SetCVar("cameraTerrainTilt", 1);
         SetDefaultBindings();
+        ClearButton();
     end
 
     handler = EVENT_HANDLERS[event];
