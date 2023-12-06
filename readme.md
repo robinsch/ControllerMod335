@@ -1,7 +1,7 @@
-### Notes
+# Notes
 In development, ControllerMod does not offer native controller support. You need to use [Steam Big Picture Mode](https://store.steampowered.com/bigpicture).
 
-### Installation
+## Installation
 1. Move Patcher.exe to WoW folder and run it.
 2. Move Extensions.dll to WoW folder.
 3. Move patch-controllermod.mpq to WoW/Data folder.
@@ -31,26 +31,6 @@ In development, ControllerMod does not offer native controller support. You need
 `-login "user e.g. Myaccount" -password "pass e.g. Mysecretpass" -realmName "realm e.g. Sunfury" - character "char e.g. Mychar"`
 
 
-### Features
-* New LUA API:
-  * InteractNearest()
-  * SetCursorPosition(x, y)
-  * DeleteCursorItemConfirm()
- 
-* New CVARs:
-  * autoTarget (enables targeting attack on melee attack or spell hit)
-  * tabTargetFriend (enables tab targeting to target friendly units)
-    
-* Supported Frames:
-  * QuestFrame
-  * GossipFrame
-  * MerchantFrame
-  * SpellBookFrame
-  * ContainerFrame
-  * StaticPopup
-  * TradeSkillFrame
-
-
-### Updating
+# Updating
 1. Replace Extensions.dll.
 2. Replace patch-controllermod in WoW/Data folder.
