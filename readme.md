@@ -7,16 +7,28 @@ In development, ControllerMod does not offer native controller support. You need
 3. Move patch-controllermod.mpq to WoW/Data folder.
 4. Import steam controller profile.
 
-## Steam Controller Profiles
-steam://controllerconfig/3255281634/3069784775
+## Steam Setup
+0. Download and Install Steam (https://cdn.cloudflare.steamstatic.com/client/installer/SteamSetup.exe)
+1. Launch Steam
+2. Click the **Games** menu, choose **Add a Non-Steam Game to My Library**.
+3. Browse for Ascension.exe on your computer.
+4. Click on **Add Selected Programs**.
 
-(copy and paste into browser)
+## Steam Controller
+1. Launch Steam in Big Picture Mode.
+2. Browse for Ascension in your Steam Library.
+3. Select the gamepad icon on the right.
+4. Click the **Search** menu, search for **ControllerMod335** (or download it through your browser: steam://controllerconfig/3255281634/3069784775)
+5. Download and activate the controller layout.
 
 
 ## Steam Auto-Login
-You can enable auto login by entering launch options game properties general tab
+1. Launch Steam in Big Picture Mode.
+2. Browse for Ascension in your Steam Library.
+3. Select the setting icon on the right (next to the gamepad icon).
+4. Copy and paste the text segement below and adjust it to your 
 
-`-login "user" -password "pass" -realmName "Sunfury" - character "Testchar"`
+`-login "user" -password "pass" -realmName "Area 52 - Free-Pick" - character "char"`
 
 
 ### Features
