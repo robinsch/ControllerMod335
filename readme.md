@@ -28,7 +28,7 @@ In development, ControllerMod does not offer native controller support. You need
 3. Select the setting icon on the right (next to the gamepad icon).
 4. Copy and paste the text segement below and adjust it to your 
 
-`-login "user e.g. Myaccount" -password "pass e.g. Mysecretpass" -realmName "realm e.g. Sunfury" - character "char e.g. Mychar"`
+`-login "user e.g. Myaccount" -password "pass e.g. Mysecretpass" -realm "realm e.g. Sunfury" - character "char e.g. Mychar"`
 
 
 # Updating
