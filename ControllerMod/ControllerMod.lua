@@ -41,7 +41,6 @@ end
 -- @robinsch: button helpers
 function ClickButtonA()
     if UnitExists("target") and not UnitIsFriend("player", "target") and not UnitIsDead("target") then
-        BT4Button1:Click();
         ActionButton1:Click();
     else
         InteractNearest();
@@ -58,7 +57,6 @@ function ClickButtonX()
      if S_DEBUG then
         print("(ClickButtonX)");
     end
-    BT4Button13:Click();
     ActionButton3:Click();
 end
 
@@ -66,7 +64,6 @@ function ClickButtonY()
     if S_DEBUG then
         print("(ClickButtonY)");
     end
-    BT4Button37:Click();
     ActionButton4:Click();
 end
 
@@ -215,12 +212,48 @@ end
 function SetSpellIndex(index)
     if S_BUTTON == nil then return end
     local buttonName = S_BUTTON:GetName();
+
     local buttonIndex
     for idx in string.gmatch (buttonName, "%d+") do
         buttonIndex = idx
     end
 
     if buttonIndex == nil then
+        -- Cursor @ Prev / Next Page Button
+        if string.find(buttonName, "SpellBookPrevPageButton") then
+            -- Right => Next Page Button
+            if index == 1 then
+                SetButton(_G["SpellBookNextPageButton"]);
+                return true
+            -- Left => Unbind
+            elseif index == -1 then return true
+            -- Up => Spell Book
+            elseif index == -2 then
+                SetButton(_G["SpellButton11"]);
+                return true
+            -- Down => Action Bar
+            elseif index == 2 then 
+                SetButton(_G["ActionButton1"]);
+                return true
+            end
+        elseif string.find(buttonName, "SpellBookNextPageButton") then
+            -- Right => Unbind
+            if index == 1 then return true
+            -- Left => Next Page Button
+            elseif index == -1 then
+                SetButton(_G["SpellBookPrevPageButton"]);
+                return true
+            -- Up => Spell Book
+            elseif index == -2 then
+                SetButton(_G["SpellButton12"]);
+                return true
+            -- Down => Action Bar
+            elseif index == 2 then 
+                SetButton(_G["ActionButton1"]);
+                return true
+            end
+        end
+
         return false
     end
 
@@ -240,13 +273,7 @@ function SetSpellIndex(index)
         if index == 2 then index = 1 end
     -- Cursor @ Spell Book
     elseif string.find(buttonName, "SpellButton") then
-        -- Down => Action Bar
-        if (buttonIndex + index) >= 12 then
-            SetButton(_G["ActionButton1"]);
-            return true
-        end
-
-        -- Cursor @ Left Side
+        -- Cursor @ Right Side
         if buttonIndex % 2 == 0 then
             -- Right => Spell Book (Skill Line Tab)
             if index == 1 then
@@ -257,6 +284,15 @@ function SetSpellIndex(index)
         elseif buttonIndex % 1 == 0 then
             -- Left => Unbind
             if index == -1 then return true end
+        end
+
+        -- Down => Action Bar
+        if (buttonIndex + index) == 13 then
+            SetButton(_G["SpellBookPrevPageButton"]);
+            return true
+        elseif (buttonIndex + index) == 14 then
+            SetButton(_G["SpellBookNextPageButton"]);
+            return true
         end
     -- Cursor @ Action Bar
     elseif string.find(buttonName, "ActionButton") then
@@ -328,7 +364,7 @@ end
 function SetSpellButton()
     if S_BUTTON == nil then return false end
 
-    if string.find(S_BUTTON:GetName(), "SpellBookSkillLineTab") then
+    if string.find(S_BUTTON:GetName(), "SpellBookSkillLineTab") or S_BUTTON:GetName() == "SpellBookPrevPageButton" or S_BUTTON:GetName() == "SpellBookNextPageButton" then
         ClickButtonLeft();
         return true;
     end
