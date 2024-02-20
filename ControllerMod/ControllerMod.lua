@@ -38,6 +38,10 @@ function CloseMenus()
     CloseQuest();
 end
 
+function Unbind()
+    return true;
+end
+
 -- @robinsch: button helpers
 function ClickButtonA()
     if UnitExists("target") and not UnitIsFriend("player", "target") and not UnitIsDead("target") then
@@ -519,7 +523,10 @@ BINDING_HANDLERS =
 {
     StaticPopup1 =
     {
+        Button_A = { ClickButtonLeft, "StaticPopup1Button1" },
         Button_B = { ClickButtonLeft, "StaticPopup1Button2" },
+        Left = { Unbind },
+        Right = { Unbind },
     },
 
     GossipFrame =
@@ -624,6 +631,7 @@ BINDING_HANDLERS =
         Right = { SetMicroButtonIndex, 1 },
     },
 }
+BINDING_HANDLERS_QUERY = { "StaticPopup1", "GossipFrame", "QuestFrameGreetingPanel", "QuestFrameDetailPanel", "QuestFrameRewardPanel", "QuestLogFrame", "TradeSkillFrame", "MerchantFrame", "SpellBookFrame", "ContainerFrame1", "WorldFrame" }
 
 QuestLogFrame:HookScript("OnShow", function(self)
     SetButton(_G["QuestLogScrollFrameButton1"]);
@@ -644,6 +652,7 @@ ContainerFrame1:HookScript("OnShow", function(self)
     _G["CharacterBag1Slot"]:Click();
     _G["CharacterBag2Slot"]:Click();
     _G["CharacterBag3Slot"]:Click();
+    _G["SpellBookCloseButton"]:Click();
 end)
 
 ContainerFrame1:HookScript("OnHide", function(self)
@@ -716,16 +725,18 @@ end)
 
 -- @robinsch: Bindings.xml handlers
 function ControllerMod_Start()
-    for frame, handler in pairs(BINDING_HANDLERS) do
+    for _, frame in pairs(BINDING_HANDLERS_QUERY) do
+        local handler = BINDING_HANDLERS[frame]
         if _G[frame] and _G[frame]:IsVisible() and handler["Start"] then
-            ControllerMod_Handle(_G[frame], handler["Start"]);
+            ControllerMod_Handle(_G[frame], handler["Start"])
             return
         end
     end
 end
 
 function ControllerMod_Back()
-    for frame, handler in pairs(BINDING_HANDLERS) do
+    for _, frame in pairs(BINDING_HANDLERS_QUERY) do
+        local handler = BINDING_HANDLERS[frame]
         if _G[frame] and _G[frame]:IsVisible() and handler["Back"] then
             if ControllerMod_Handle(_G[frame], handler["Back"]) then
                 return
@@ -735,7 +746,8 @@ function ControllerMod_Back()
 end
 
 function ControllerMod_Button_A()
-    for frame, handler in pairs(BINDING_HANDLERS) do
+    for _, frame in pairs(BINDING_HANDLERS_QUERY) do
+        local handler = BINDING_HANDLERS[frame]
         if _G[frame] and _G[frame]:IsVisible() and handler["Button_A"] then
             if ControllerMod_Handle(_G[frame], handler["Button_A"]) then
                 return
@@ -747,7 +759,8 @@ function ControllerMod_Button_A()
 end
 
 function ControllerMod_Button_B()
-    for frame, handler in pairs(BINDING_HANDLERS) do
+    for _, frame in pairs(BINDING_HANDLERS_QUERY) do
+        local handler = BINDING_HANDLERS[frame]
         if _G[frame] and _G[frame]:IsVisible() and handler["Button_B"] then
             if ControllerMod_Handle(_G[frame], handler["Button_B"]) then
                 return
@@ -759,7 +772,8 @@ function ControllerMod_Button_B()
 end
 
 function ControllerMod_Button_X()
-    for frame, handler in pairs(BINDING_HANDLERS) do
+    for _, frame in pairs(BINDING_HANDLERS_QUERY) do
+        local handler = BINDING_HANDLERS[frame]
         if _G[frame] and _G[frame]:IsVisible() and handler["Button_X"] then
             if ControllerMod_Handle(_G[frame], handler["Button_X"]) then
                 return
@@ -771,7 +785,8 @@ function ControllerMod_Button_X()
 end
 
 function ControllerMod_Button_Y()
-    for frame, handler in pairs(BINDING_HANDLERS) do
+    for _, frame in pairs(BINDING_HANDLERS_QUERY) do
+        local handler = BINDING_HANDLERS[frame]
         if _G[frame] and _G[frame]:IsVisible() and handler["Button_Y"] then
             if ControllerMod_Handle(_G[frame], handler["Button_Y"]) then
                 return
@@ -783,43 +798,47 @@ function ControllerMod_Button_Y()
 end
 
 function ControllerMod_Left()
-    for frame, handler in pairs(BINDING_HANDLERS) do
+    for _, frame in pairs(BINDING_HANDLERS_QUERY) do
+        local handler = BINDING_HANDLERS[frame]
         if _G[frame] and _G[frame]:IsVisible() and handler["Left"] then
             if ControllerMod_Handle(_G[frame], handler["Left"]) then
                 return
             end
         end
-    end   
+    end
 end
 
 function ControllerMod_Right()
-    for frame, handler in pairs(BINDING_HANDLERS) do
+    for _, frame in pairs(BINDING_HANDLERS_QUERY) do
+        local handler = BINDING_HANDLERS[frame]
         if _G[frame] and _G[frame]:IsVisible() and handler["Right"] then
             if ControllerMod_Handle(_G[frame], handler["Right"]) then
                 return
             end
         end
-    end   
+    end
 end
 
 function ControllerMod_Up()
-    for frame, handler in pairs(BINDING_HANDLERS) do
+    for _, frame in pairs(BINDING_HANDLERS_QUERY) do
+        local handler = BINDING_HANDLERS[frame]
         if _G[frame] and _G[frame]:IsVisible() and handler["Up"] then
             if ControllerMod_Handle(_G[frame], handler["Up"]) then
                 return
             end
         end
-    end  
+    end
 end
 
 function ControllerMod_Down()
-    for frame, handler in pairs(BINDING_HANDLERS) do
+    for _, frame in pairs(BINDING_HANDLERS_QUERY) do
+        local handler = BINDING_HANDLERS[frame]
         if _G[frame] and _G[frame]:IsVisible() and handler["Down"] then
             if ControllerMod_Handle(_G[frame], handler["Down"]) then
                 return
             end
         end
-    end  
+    end 
 end
 
 function ControllerMod_Handle(frame, handle)
