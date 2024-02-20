@@ -82,6 +82,10 @@ function ClickButtonLeft()
         return true
     end
 
+    if string.find(S_BUTTON:GetName(), "CloseButton") then
+        ClearButton();
+    end
+
     if S_DEBUG then
         print("(ClickButtonLeft) "..S_BUTTON:GetName());
     end
@@ -102,13 +106,6 @@ end
 function MoveCursor(button)
     if button:IsVisible() then
         x, y = GetNormalizedPosition(button);
-
-        if IsAddOnLoaded("Bartender4") and string.find(button:GetName(), "MicroButton") then
-            print(x);
-            print(y);
-            x = x - 0.225;
-        end
-
         SetCursorPosition(x, y);
     end
 end
@@ -395,11 +392,17 @@ end
 
 function ClearSpellButton()
     if S_BUTTON == nil then
-        _G["SpellBookFrame"]:Hide();
+        ClearButton();
+        _G["SpellBookCloseButton"]:Click();
     end
 
     if S_DEBUG then
         print(S_BUTTON:GetName());
+    end
+
+    if not CursorHasSpell() then
+        ClearButton();
+        _G["SpellBookCloseButton"]:Click();
     end
     
     ClearCursor();
