@@ -1,12 +1,6 @@
 # Notes
 In development, ControllerMod does not offer native controller support. You need to use [Steam Big Picture Mode](https://store.steampowered.com/bigpicture).
 
-## Installation
-1. Move Patcher.exe to WoW folder and run it.
-2. Move Extensions.dll to WoW folder.
-3. Move patch-controllermod.mpq to WoW/Data folder.
-4. Import steam controller profile.
-
 ## Steam Setup
 0. Download and Install Steam (https://cdn.cloudflare.steamstatic.com/client/installer/SteamSetup.exe)
 1. Launch Steam
@@ -29,6 +23,13 @@ In development, ControllerMod does not offer native controller support. You need
 4. Copy and paste the text segement below and adjust it to your 
 
 `-login "user e.g. Myaccount" -password "pass e.g. Mysecretpass" -realm "realm e.g. Sunfury" -character "char e.g. Mychar" -controller "1"`
+
+
+## Installation (Not needed on Ascension.gg)
+1. Move Patcher.exe to WoW folder and run it.
+2. Move Extensions.dll to WoW folder.
+3. Move patch-controllermod.mpq to WoW/Data folder.
+4. Import steam controller profile.
 
 
 # Updating
