@@ -15,6 +15,7 @@ In development, ControllerMod does not offer native controller support. You need
 4. Click the **Search** menu, search for **ControllerMod335** (or download it through your browser: steam://controllerconfig/3255281634/3069784775)
 5. Download and activate the controller layout.
 
+![](https://i.gyazo.com/e4492b0812555a3e4f5834346b413396.png)
 
 ## Steam Auto-Login
 1. Launch Steam in Big Picture Mode.
